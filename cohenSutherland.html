@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+    <style type="text/css">
+        html, body {
+            margin: 0;
+            padding: 0;
+        }
+
+        canvas {
+            margin: 10px;
+            border: 5px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="canvas" width="800" height="500"></canvas>
+
+    <script type="text/javascript" src="cohenSutherland.js"></script>
+
+    <script type="text/javascript">
+        var canvas = document.getElementById('canvas');
+        var ctx = canvas.getContext('2d');
+
+        // 构造一条原始线路
+        var line = [
+            {
+                x: 30,
+                y: 30
+            },
+            {
+                x: 70,
+                y: 80
+            },
+            {
+                x: 130,
+                y: 180
+            },
+            {
+                x: 190,
+                y: 230
+            },
+            {
+                x: 230,
+                y: 280
+            },
+            {
+                x: 330,
+                y: 250
+            },
+            {
+                x: 430,
+                y: 350
+            },
+            {
+                x: 530,
+                y: 380
+            },
+            {
+                x: 630,
+                y: 420
+            },
+            {
+                x: 730,
+                y: 480
+            }
+        ];
+
+        ctx.beginPath();
+        ctx.save();
+
+        ctx.lineWidth = 5;
+        ctx.strokeStyle = 'rgba(50, 50, 255, 0.5)';
+        ctx.fillStyle = 'rgba(250, 55, 55, 1)';
+
+        ctx.moveTo(line[0].x, line[0].y);
+        ctx.fillRect(line[0].x - 5, line[0].y - 5, 10, 10);
+
+        for (var i = 1; i < line.length; i++) {
+            var point = line[i];
+            ctx.fillRect(point.x - 5, point.y - 5, 10, 10);
+            ctx.lineTo(point.x, point.y);
+        }
+
+        ctx.stroke();
+        ctx.restore();
+
+        var pixs = line;
+
+        // 针对像素坐标数组进行线段剪裁，生成一个数组
+        var segLines = [],
+          pixelBounds = {
+            minX: 100,
+            minY: 100,
+            maxX: 600,
+            maxY: 400
+          };
+        for (var i = 0, l = pixs.length - 1; i < l; i++) {
+          var px0 = pixs[i],
+            px1 = pixs[i + 1];
+          var clipLine = cohenSutherlandLineClip(px0, px1, pixelBounds);
+          if (clipLine) {
+            segLines.push(clipLine);
+          }
+        }
+        var results = [
+          []
+        ];
+        for (var i = 0, l = segLines.length; i < l; i++) {
+          if (segLines[i].clip) {
+            // 剪裁的线
+            results[results.length - 1].push(segLines[i].pixel0);
+            results[results.length - 1].push(segLines[i].pixel1);
+            if (segLines[i + 1] && segLines[i + 1].clip) {
+              // 下一个结点是剪裁的
+              results.push([]);
+            }
+          } else {
+            // 未剪裁的线
+            results[results.length - 1].push(segLines[i].pixel0);
+            if (i == segLines.length - 1) {
+              results[results.length - 1].push(segLines[i].pixel1);
+            }
+          }
+        }
+        var dpLine = results[0];
+
+        ctx.beginPath();
+        ctx.save();
+        ctx.fillStyle = "rgba(55, 55, 255, 0.2)";
+        ctx.fillRect(pixelBounds.minX, pixelBounds.minY, pixelBounds.maxX - pixelBounds.minX, pixelBounds.maxY - pixelBounds.minY);
+        ctx.stroke();
+        ctx.restore();
+
+        ctx.beginPath();
+        ctx.save();
+
+        ctx.lineWidth = 5;
+        ctx.strokeStyle = 'rgba(250, 50, 55, 0.8)';
+        ctx.fillStyle = 'rgba(50, 55, 55, 1)';
+
+        ctx.moveTo(dpLine[0].x, dpLine[0].y);
+        ctx.fillRect(dpLine[0].x - 5, dpLine[0].y - 5, 10, 10);
+
+        for (var i = 1; i < dpLine.length; i++) {
+            var point = dpLine[i];
+            ctx.fillRect(point.x - 5, point.y - 5, 10, 10);
+            ctx.lineTo(point.x, point.y);
+        }
+
+        ctx.stroke();
+        ctx.restore();
+        console.log(dpLine);
+
+    </script>
+	
+</body>
+</html>

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+    <style type="text/css">
+        html, body {
+            margin: 0;
+            padding: 0;
+        }
+
+        canvas {
+            margin: 10px;
+            border: 5px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="canvas" width="800" height="500"></canvas>
+
+    <script type="text/javascript" src="douglasPeucker.js"></script>
+
+    <script type="text/javascript">
+        var canvas = document.getElementById('canvas');
+        var ctx = canvas.getContext('2d');
+
+        // 构造一条原始线路
+        var line = [
+            {
+                x: 30,
+                y: 30
+            },
+            {
+                x: 70,
+                y: 80
+            },
+            {
+                x: 130,
+                y: 180
+            },
+            {
+                x: 190,
+                y: 230
+            },
+            {
+                x: 230,
+                y: 280
+            },
+            {
+                x: 330,
+                y: 250
+            },
+            {
+                x: 430,
+                y: 350
+            },
+            {
+                x: 530,
+                y: 380
+            },
+            {
+                x: 630,
+                y: 420
+            },
+            {
+                x: 730,
+                y: 480
+            }
+        ];
+
+        ctx.beginPath();
+        ctx.save();
+
+        ctx.lineWidth = 5;
+        ctx.strokeStyle = 'rgba(50, 50, 255, 0.5)';
+        ctx.fillStyle = 'rgba(250, 55, 55, 1)';
+
+        ctx.moveTo(line[0].x, line[0].y);
+        ctx.fillRect(line[0].x - 5, line[0].y - 5, 10, 10);
+
+        for (var i = 1; i < line.length; i++) {
+            var point = line[i];
+            ctx.fillRect(point.x - 5, point.y - 5, 10, 10);
+            ctx.lineTo(point.x, point.y);
+        }
+
+        ctx.stroke();
+        ctx.restore();
+
+        var dpLine = simplify(line, 20);
+
+        ctx.beginPath();
+        ctx.save();
+
+        ctx.lineWidth = 5;
+        ctx.strokeStyle = 'rgba(250, 50, 55, 0.8)';
+        ctx.fillStyle = 'rgba(50, 55, 55, 1)';
+
+        ctx.moveTo(dpLine[0].x, dpLine[0].y);
+        ctx.fillRect(dpLine[0].x - 5, dpLine[0].y - 5, 10, 10);
+
+        for (var i = 1; i < dpLine.length; i++) {
+            var point = dpLine[i];
+            ctx.fillRect(point.x - 5, point.y - 5, 10, 10);
+            ctx.lineTo(point.x, point.y);
+        }
+
+        ctx.stroke();
+        ctx.restore();
+        console.log(dpLine);
+
+    </script>
+	
+</body>
+</html>
